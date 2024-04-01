@@ -23,7 +23,7 @@ def get_all_post(request):
 @api_view(["POST"])
 def add_new_post(request):
  user = User.objects.get(id=request.user.id)
- print(user)
+ print(request.data,user)
  return Response("hi")
 #  parser_classes = (MultiPartParser, FormParser)
 #  userid = str(user.id)
