@@ -22,7 +22,7 @@ def get_all_post(request):
 @permission_classes([IsAuthenticated])
 @api_view(["POST"])
 def add_new_post(request):
- print(request)
+ print(request.data)
  return Response("hi")
 #  parser_classes = (MultiPartParser, FormParser)
 #  user = User.objects.get(id=request.user.id)
