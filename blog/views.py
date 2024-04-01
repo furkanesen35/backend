@@ -22,16 +22,18 @@ def get_all_post(request):
 @permission_classes([IsAuthenticated])
 @api_view(["POST"])
 def add_new_post(request):
- parser_classes = (MultiPartParser, FormParser)
- user = User.objects.get(id=request.user.id)
- userid = str(user.id)
- request.data["author"] = userid
- serializer = PostSerializer(data=request.data)
- if serializer.is_valid():
-  serializer.save()
-  data = { "message": "Post created successfully" }
-  return Response(data, status=status.HTTP_201_CREATED)
- return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+ print(request)
+ return Response("hi")
+#  parser_classes = (MultiPartParser, FormParser)
+#  user = User.objects.get(id=request.user.id)
+#  userid = str(user.id)
+#  request.data["author"] = userid
+#  serializer = PostSerializer(data=request.data)
+#  if serializer.is_valid():
+#   serializer.save()
+#   data = { "message": "Post created successfully" }
+#   return Response(data, status=status.HTTP_201_CREATED)
+#  return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
