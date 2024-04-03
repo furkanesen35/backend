@@ -94,6 +94,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
  'http://localhost:3000',
+ 'https://blog-app-eosin-nine.vercel.app/',
 ]
 
 REST_FRAMEWORK = {
@@ -102,7 +103,7 @@ REST_FRAMEWORK = {
  ],
  'DEFAULT_PARSER_CLASSES': [
   'rest_framework.parsers.JSONParser',
-  'rest_framework.parsers.MultiPartParser',  # Added for image upload
+  'rest_framework.parsers.MultiPartParser',
  ]
 }
 
