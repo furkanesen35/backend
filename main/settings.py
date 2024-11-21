@@ -2,6 +2,7 @@ from pathlib import Path
 from decouple import config
 from datetime import timedelta
 import os
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -60,10 +61,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'main.wsgi.application'
 
 DATABASES = {
- 'default': {
-  'ENGINE': 'django.db.backends.sqlite3',
-  'NAME': BASE_DIR / 'db.sqlite3',
- }
+    'default': dj_database_url.config(
+        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3')
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -89,7 +89,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -121,8 +121,8 @@ SIMPLE_JWT = {
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-STATICFILES_DIRS = (
- os.path.join(BASE_DIR, "static"),
-)
+STATICFILES_DIRS = []
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
