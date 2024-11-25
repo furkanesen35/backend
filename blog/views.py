@@ -17,18 +17,15 @@ def get_all_post(request):
  serializer = PostSerializer(posts, many=True)
  return Response(serializer.data)
 
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
 @api_view(["POST"])
 @parser_classes([MultiPartParser, FormParser])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def add_new_post(request):
- user = User.objects.get(id=request.user.id)
- userid = str(user.id)
-
- data = request.data.copy()
- data["author"] = userid
-
- serializer = PostSerializer(data=data)
+ user = request.user
+ request.data._mutable = True  # Optional for modifying `request.data`
+ request.data["author"] = str(user.id)
+ serializer = PostSerializer(data=request.data)
  if serializer.is_valid():
   serializer.save()
   return Response({"message": "Post created successfully"}, status=status.HTTP_201_CREATED)
@@ -41,7 +38,6 @@ def post_detail(request, slug):
  post = get_object_or_404(Post, slug=slug)
  serializer = PostSerializer(post)
  return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -63,7 +59,6 @@ def post_delete(request, slug):
  post = get_object_or_404(Post, slug=slug)
  post.delete()
  return Response({"message": "Post deleted successfully"})
-
 
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -107,7 +102,6 @@ def add_category(request):
   return Response({"message": "Category created successfully"}, status=status.HTTP_201_CREATED)
  return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 @api_view(["GET"])
@@ -125,7 +119,6 @@ def toggleLike(request, slug):
  post = get_object_or_404(Post, slug=slug)
  data["user"] = user.id
  data["post"] = post.id
-
  like = Like.objects.filter(user=user.id, post=post.id)
  if like.exists():
   like.delete()
