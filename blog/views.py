@@ -1,14 +1,13 @@
 from django.shortcuts import get_object_or_404
-from .models import Post,Comment,Category,Like,PostView
+from .models import Post, Comment, Category, Like, PostView
 from django.contrib.auth.models import User
-from .serializer import PostSerializer,CategorySerializer,CommentSerializer,LikeSerializer,ViewSerializer
-from rest_framework.decorators import api_view,authentication_classes,permission_classes
+from .serializer import PostSerializer, CategorySerializer, CommentSerializer, LikeSerializer, ViewSerializer
+from rest_framework.decorators import api_view, authentication_classes, permission_classes, parser_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.decorators import parser_classes
 
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -21,47 +20,50 @@ def get_all_post(request):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 @api_view(["POST"])
+@parser_classes([MultiPartParser, FormParser])
 def add_new_post(request):
  user = User.objects.get(id=request.user.id)
- parser_classes = (MultiPartParser, FormParser)
  userid = str(user.id)
- request.data["author"] = userid
- serializer = PostSerializer(data=request.data)
+
+ data = request.data.copy()
+ data["author"] = userid
+
+ serializer = PostSerializer(data=data)
  if serializer.is_valid():
   serializer.save()
-  data = { "message": "Post created successfully" }
-  return Response(data, status=status.HTTP_201_CREATED)
+  return Response({"message": "Post created successfully"}, status=status.HTTP_201_CREATED)
  return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 @api_view(["GET"])
-def post_detail(request,slug):
- post = get_object_or_404(Post,slug=slug)
+def post_detail(request, slug):
+ post = get_object_or_404(Post, slug=slug)
  serializer = PostSerializer(post)
  return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 @api_view(["PUT"])
 @parser_classes([MultiPartParser, FormParser])
-def post_edit(request,slug):
- post = get_object_or_404(Post,slug=slug)
- serializer = PostSerializer(post, data=request.data, partial=True)
+def post_edit(request, slug):
+ post = get_object_or_404(Post, slug=slug)
+ data = request.data.copy()
+ serializer = PostSerializer(post, data=data, partial=True)
  if serializer.is_valid():
   serializer.save()
-  data = { "message": "Post updated successfully" }
-  return Response(data)
+  return Response({"message": "Post updated successfully"})
  return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 @api_view(["DELETE"])
-def post_delete(request,slug):
- post = get_object_or_404(Post,slug=slug)
+def post_delete(request, slug):
+ post = get_object_or_404(Post, slug=slug)
  post.delete()
- data = { "message": "Post deleted successfully" }
- return Response(data)
+ return Response({"message": "Post deleted successfully"})
+
 
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -74,18 +76,17 @@ def get_comments(request):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 @api_view(["POST"])
-def add_comment(request,slug):
- data = request.data
+def add_comment(request, slug):
+ data = request.data.copy()  # Create a mutable copy
  user = User.objects.get(id=request.user.id)
  userid = str(user.id)
- post_id = str(get_object_or_404(Post,slug=slug).id)
+ post_id = str(get_object_or_404(Post, slug=slug).id)
  data["post"] = post_id
  data["user"] = userid
  serializer = CommentSerializer(data=data)
  if serializer.is_valid():
   serializer.save()
-  data = { "message": "Comment created successfully" }
-  return Response(data, status=status.HTTP_201_CREATED)
+  return Response({"message": "Comment created successfully"}, status=status.HTTP_201_CREATED)
  return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @authentication_classes([TokenAuthentication])
@@ -103,9 +104,9 @@ def add_category(request):
  serializer = CategorySerializer(data=request.data)
  if serializer.is_valid():
   serializer.save()
-  data = { "message": "Category created successfully" }
-  return Response(data, status=status.HTTP_201_CREATED)
+  return Response({"message": "Category created successfully"}, status=status.HTTP_201_CREATED)
  return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -118,20 +119,22 @@ def get_likes(request):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 @api_view(["POST"])
-def toggleLike(request,slug):
+def toggleLike(request, slug):
+ data = request.data.copy()  # Create a mutable copy
  user = User.objects.get(id=request.user.id)
  post = get_object_or_404(Post, slug=slug)
- request.data["user"] = user.id
- request.data["post"] = post.id
- like = Like.objects.filter(user=user.id,post=post.id)
+ data["user"] = user.id
+ data["post"] = post.id
+
+ like = Like.objects.filter(user=user.id, post=post.id)
  if like.exists():
   like.delete()
   return Response({"message": "Like deleted"})
  else:
-  serializer = LikeSerializer(data=request.data)
+  serializer = LikeSerializer(data=data)
   if serializer.is_valid():
    serializer.save()
-   return Response({"message": "Like created", "data":serializer.data})
+   return Response({"message": "Like created", "data": serializer.data})
  return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["GET"])
@@ -141,14 +144,14 @@ def get_views(request):
  return Response(serializer.data)
 
 @api_view(["POST"])
-def post_blog_view(request,slug):
- post = get_object_or_404(Post,slug=slug)
+def post_blog_view(request, slug):
+ data = request.data.copy()  # Create a mutable copy
+ post = get_object_or_404(Post, slug=slug)
  user = User.objects.get(id=request.user.id)
- request.data["post"] = post.id
- request.data["user"] = user.id
- serializer = ViewSerializer(data=request.data)
+ data["post"] = post.id
+ data["user"] = user.id
+ serializer = ViewSerializer(data=data)
  if serializer.is_valid():
   serializer.save()
-  data = { "message": "View created successfully" }
-  return Response(data, status=status.HTTP_201_CREATED)
+  return Response({"message": "View created successfully"}, status=status.HTTP_201_CREATED)
  return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
