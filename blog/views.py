@@ -26,6 +26,7 @@ def add_new_post(request):
  request.data._mutable = True  # Optional for modifying `request.data`
  request.data["author"] = str(user.id)
  serializer = PostSerializer(data=request.data)
+ print(f"Authenticated user: {request.user}")
  if serializer.is_valid():
   serializer.save()
   return Response({"message": "Post created successfully"}, status=status.HTTP_201_CREATED)
