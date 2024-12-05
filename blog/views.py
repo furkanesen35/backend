@@ -74,17 +74,18 @@ def get_comments(request):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 @api_view(["POST"])
-def add_comment(request, slug):
- post = get_object_or_404(Post, slug=slug)
- user = request.user
- data = request.data.copy()
- data["post"] = post.id
- data["user"] = user.id
- print("Incoming data:", data)
+def add_comment(request,slug):
+ data = request.data
+ user = User.objects.get(id=request.user.id)
+ userid = str(user.id)
+ post_id = str(get_object_or_404(Post,slug=slug).id)
+ data["post"] = post_id
+ data["user"] = userid
  serializer = CommentSerializer(data=data)
  if serializer.is_valid():
   serializer.save()
-  return Response({"message": "Comment created successfully"}, status=status.HTTP_201_CREATED)
+  data = { "message": "Comment created successfully" }
+  return Response(data, status=status.HTTP_201_CREATED)
  return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @authentication_classes([TokenAuthentication])

@@ -12,7 +12,7 @@ class LikeSerializer(serializers.ModelSerializer):
   fields = ('id', 'user', 'post')
 
 class CommentSerializer(serializers.ModelSerializer):
- user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+ user = serializers.StringRelatedField()
  class Meta:
   model = Comment
   fields = "__all__"
