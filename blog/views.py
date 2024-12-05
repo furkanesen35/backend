@@ -80,6 +80,7 @@ def add_comment(request, slug):
  data = request.data.copy()
  data["post"] = post.id
  data["user"] = user.id
+ print("Incoming data:", data)
  serializer = CommentSerializer(data=data)
  if serializer.is_valid():
   serializer.save()

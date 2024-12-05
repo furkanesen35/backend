@@ -12,20 +12,10 @@ class LikeSerializer(serializers.ModelSerializer):
   fields = ('id', 'user', 'post')
 
 class CommentSerializer(serializers.ModelSerializer):
- user = serializers.SerializerMethodField()
+ user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
  class Meta:
   model = Comment
   fields = "__all__"
- def get_user(self, obj):
-  if obj.user:
-   return obj.user.username
-  return None
- def validate(self, data):
-  if not data.get("user"):
-   raise serializers.ValidationError("A user must be associated with the comment.")
-  if not data.get("post"):
-   raise serializers.ValidationError("A post must be associated with the comment.")
-  return data
 
 class ViewSerializer(serializers.ModelSerializer):
  class Meta:
@@ -38,7 +28,3 @@ class PostSerializer(serializers.ModelSerializer):
  class Meta:
   model = Post
   fields = "__all__"
-#  def create(self, validated_data):
-#   return super().create(validated_data)
-#  def update(self, instance, validated_data):
-#   return super().update(instance, validated_data)
