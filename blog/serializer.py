@@ -20,6 +20,12 @@ class CommentSerializer(serializers.ModelSerializer):
   if obj.user:
    return obj.user.username
   return None
+ def validate(self, data):
+  if not data.get("user"):
+   raise serializers.ValidationError("A user must be associated with the comment.")
+  if not data.get("post"):
+   raise serializers.ValidationError("A post must be associated with the comment.")
+  return data
 
 class ViewSerializer(serializers.ModelSerializer):
  class Meta:
