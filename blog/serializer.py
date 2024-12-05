@@ -12,10 +12,14 @@ class LikeSerializer(serializers.ModelSerializer):
   fields = ('id', 'user', 'post')
 
 class CommentSerializer(serializers.ModelSerializer):
- user = serializers.StringRelatedField()
+ user = serializers.SerializerMethodField()
  class Meta:
   model = Comment
   fields = "__all__"
+ def get_user(self, obj):
+  if obj.user:
+   return obj.user.username
+  return None
 
 class ViewSerializer(serializers.ModelSerializer):
  class Meta:
